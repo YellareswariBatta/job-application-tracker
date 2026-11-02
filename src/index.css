@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: toggled by adding "dark" to <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Smooth colour change when switching theme. */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes icon-spin-in {
+  from { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Background bubbles rise from below the screen, sway sideways, then fade out. */
+@keyframes bubble-rise {
+  0% { transform: translate3d(0, 0, 0) scale(0.7); opacity: 0; }
+  12% { opacity: 1; }
+  50% { transform: translate3d(var(--drift), -60vh, 0) scale(1); }
+  100% { transform: translate3d(calc(var(--drift) * -1), -125vh, 0) scale(1.2); opacity: 0; }
+}
+
+/* Bubbles inside a banner just bob around in place. */
+@keyframes bubble-bob {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(var(--drift), -18px, 0) scale(1.08); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-12px) rotate(4deg); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(var(--dx), 108vh, 0) rotate(var(--rot)); opacity: 0; }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Animated shimmering text for headline highlights. */
+.text-shine {
+  background: linear-gradient(90deg, #fff 0%, #fde68a 25%, #fbcfe8 50%, #a5f3fc 75%, #fff 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 7s linear infinite;
+}
+
+.page-enter { animation: page-in 0.35s ease-out both; }
+.theme-icon { display: inline-flex; animation: icon-spin-in 0.4s ease-out both; }
+.float-y { animation: float-y 5s ease-in-out infinite; }
+.pop-in { animation: pop-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  width: var(--size);
+  height: var(--size);
+  left: var(--left);
+  will-change: transform;
+}
+.bubble-rise {
+  bottom: calc(var(--size) * -1);
+  animation: bubble-rise var(--dur) ease-in-out var(--delay) infinite;
+}
+.bubble-bob {
+  top: var(--top);
+  animation: bubble-bob var(--dur) ease-in-out var(--delay) infinite;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  animation: confetti-fall var(--dur) cubic-bezier(0.3, 0.6, 0.5, 1) var(--delay) both;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .bubble-rise, .confetti-piece { display: none; }
+}

@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Tracker: Application Guide</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1e293b; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc; --accent:#4f46e5; --code:#f1f5f9; }
+  @media screen and (prefers-color-scheme: dark) {
+    :root { --bg:#0b1020; --fg:#e2e8f0; --muted:#94a3b8; --line:#26304a; --soft:#131a2e; --accent:#a5b4fc; --code:#16203a; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); line-height:1.65;
+         font-family:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Roboto, Arial, sans-serif; }
+  .hero { background:linear-gradient(115deg,#4f46e5 0%,#7c3aed 55%,#db2777 100%); color:#fff;
+          padding:56px 20px 48px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .hero-inner, main { max-width:860px; margin:0 auto; }
+  .hero h1 { margin:0 0 12px; font-size:clamp(1.9rem, 5vw, 2.8rem); line-height:1.1; letter-spacing:-0.02em; }
+  .hero p { margin:0; font-size:1.05rem; opacity:.95; max-width:640px; }
+  main { padding:8px 20px 72px; }
+  h2 { margin:2.4em 0 .6em; padding-bottom:.35em; border-bottom:2px solid var(--line); font-size:1.55rem;
+       letter-spacing:-0.01em; color:var(--accent); break-after:avoid; }
+  h3 { margin:1.8em 0 .4em; font-size:1.15rem; break-after:avoid; }
+  p, li { max-width:75ch; }
+  ul, ol { padding-left:1.4em; } li { margin:.25em 0; }
+  a { color:var(--accent); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.5em 0; }
+  code { font-family:Consolas, "SFMono-Regular", Menlo, monospace; font-size:.88em; background:var(--code);
+         padding:.1em .35em; border-radius:5px; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:12px; padding:16px 18px; overflow-x:auto;
+        line-height:1.45; break-inside:avoid; }
+  pre code { background:none; padding:0; font-size:.82rem; }
+  .table-wrap { overflow-x:auto; margin:1.2em 0; border:1px solid var(--line); border-radius:12px; }
+  table { border-collapse:collapse; width:100%; font-size:.93rem; }
+  th { text-align:left; background:var(--soft); font-weight:700; }
+  th, td { padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:last-child td { border-bottom:0; }
+  tr { break-inside:avoid; }
+  strong { font-weight:700; }
+  @page { size:A4; margin:16mm 14mm; @bottom-center { content:"Job Tracker: Application Guide · Page " counter(page) " of " counter(pages); font-size:9pt; color:#64748b; } }
+  @media print {
+    body { font-size:10.5pt; line-height:1.55; }
+    .hero { padding:28px 24px; border-radius:0; }
+    .hero h1 { font-size:26pt; }
+    main { padding:0 2px; max-width:none; }
+    .hero-inner { max-width:none; }
+    h2 { font-size:15pt; margin-top:1.8em; }
+    pre { white-space:pre-wrap; word-break:break-word; }
+    .table-wrap { overflow:visible; }
+    table { font-size:9.5pt; }
+    a { color:inherit; text-decoration:none; }
+  }
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-inner"><h1>Job Tracker: Application Guide</h1><p>A plain-language guide to what this application does, how it works and how it is built. You do not need a technical background to read the first half. The second half explains the code for anyone who wants to go deeper.</p></div></header>
+<main>
+<p><strong>Contents</strong></p>
+<ol>
+<li><a href="#1-what-it-is">What it is</a></li>
+<li><a href="#2-a-tour-of-the-pages">A tour of the pages</a></li>
+<li><a href="#3-features-explained">Features explained</a></li>
+<li><a href="#4-where-your-data-lives">Where your data lives</a></li>
+<li><a href="#5-security-what-is-protected-and-what-is-not">Security: what is protected and what is not</a></li>
+<li><a href="#6-the-rules-and-calculations">The rules and calculations</a></li>
+<li><a href="#7-how-it-is-built">How it is built</a></li>
+<li><a href="#8-the-data-model">The data model</a></li>
+<li><a href="#9-testing-and-quality">Testing and quality</a></li>
+<li><a href="#10-running-and-deploying">Running and deploying</a></li>
+<li><a href="#11-limitations-and-future-ideas">Limitations and future ideas</a></li>
+<li><a href="#12-glossary">Glossary</a></li>
+</ol>
+<hr>
+<h2 id="1-what-it-is">1. What it is</h2>
+<p><strong>Job Tracker</strong> helps someone keep track of every job they apply for. Instead of a messy spreadsheet, each application is a card on a board. You move the card along as things progress: <strong>Applied, Interviewing, Offer, Rejected</strong>.</p>
+<p>Around the board there are tools that answer practical questions:</p>
+<ul>
+<li>Which applications need chasing today?</li>
+<li>Which have gone quiet?</li>
+<li>How many of my applications turn into interviews, and which source works best?</li>
+<li>Which of my job offers is really the better deal once commuting and holiday are counted?</li>
+</ul>
+<p>It is a <strong>front-end only</strong> application. There is no server and no database: everything runs in the web browser and is stored on the visitor&#39;s own device.</p>
+<hr>
+<h2 id="2-a-tour-of-the-pages">2. A tour of the pages</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Address</th>
+<th>Who can see it</th>
+<th>What it is for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Landing page</td>
+<td><code>/</code></td>
+<td>Everyone</td>
+<td>Introduces the app. Buttons for sign-up, login and the live demo.</td>
+</tr>
+<tr>
+<td>Log in</td>
+<td><code>/login</code></td>
+<td>Signed-out visitors</td>
+<td>Enter an existing account.</td>
+</tr>
+<tr>
+<td>Create account</td>
+<td><code>/register</code></td>
+<td>Signed-out visitors</td>
+<td>Make a new account.</td>
+</tr>
+<tr>
+<td>Board</td>
+<td><code>/board</code></td>
+<td>Signed-in users</td>
+<td>The main workspace: the four columns of cards.</td>
+</tr>
+<tr>
+<td>Application detail</td>
+<td><code>/applications/&lt;id&gt;</code></td>
+<td>Signed-in users</td>
+<td>Everything about one application, plus its history.</td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td><code>/dashboard</code></td>
+<td>Signed-in users</td>
+<td>Statistics and charts.</td>
+</tr>
+<tr>
+<td>Compare offers</td>
+<td><code>/offers</code></td>
+<td>Signed-in users</td>
+<td>Side-by-side offer comparison.</td>
+</tr>
+<tr>
+<td>Not found</td>
+<td>anything else</td>
+<td>Everyone</td>
+<td>A friendly &quot;page not found&quot; with a Home button.</td>
+</tr>
+</tbody></table></div>
+<p><strong>The usual journey</strong></p>
+<pre><code>Landing page ──► Create account (or Try the live demo)
+                        │
+                        ▼
+                  Board  ◄──────────────┐
+        add / paste advert / drag cards │
+                        │               │
+        ┌───────────────┼───────────────┤
+        ▼               ▼               ▼
+  Application      Dashboard        Compare offers
+    detail
+</code></pre>
+<p>If a signed-out visitor types a protected address such as <code>/board</code>, they are sent to the login page and returned to where they were heading after logging in.</p>
+<hr>
+<h2 id="3-features-explained">3. Features explained</h2>
+<h3 id="the-board">The board</h3>
+<ul>
+<li>Four coloured columns. Each card shows the company, role, date applied and salary range.</li>
+<li><strong>Drag a card</strong> to another column to change its status. It works with a mouse, a finger on a touch screen, or the keyboard.</li>
+<li><strong>Drag a card to the &quot;Drop here to delete&quot; zone</strong> that appears at the bottom while dragging. The app asks you to confirm.</li>
+<li>A card dropped into <strong>Offer</strong> triggers confetti and a congratulations message.</li>
+<li>Cards show warnings: <strong>Follow-up overdue</strong>, <strong>Follow up today</strong>, or <strong>Quiet for N days</strong>.</li>
+<li>The <strong>search bar and filters</strong> narrow the board by company or role, status and a date range.</li>
+</ul>
+<h3 id="adding-and-editing-applications">Adding and editing applications</h3>
+<p>A form with: company and role (required), date applied, status, salary range, job link, <strong>source</strong> (where you found it), follow-up reminder date, interview date and notes. Every field is checked, and clear messages appear for mistakes (for example, &quot;Job link must be a valid URL&quot;).</p>
+<h3 id="paste-a-job-advert">Paste a job advert</h3>
+<p>Click <strong>Paste job advert</strong> on the board banner.</p>
+<ol>
+<li>Paste the text of an advert. The app picks out the role, company, salary and link, and guesses the source (for example LinkedIn).</li>
+<li>Optionally paste your CV. The app compares important words and shows a <strong>match percentage</strong>, words your CV is missing and words it already covers.</li>
+<li><strong>Create application</strong> opens the normal form, pre-filled. Missing keywords are added to the notes.</li>
+</ol>
+<p>Your CV is only used inside that window. It is never saved or sent anywhere. The match is a rough word-based guide, not a judgement of your suitability.</p>
+<h3 id="quick-add-bookmarklet">Quick-add bookmarklet</h3>
+<p>Inside the same window there is a <strong>Save to Job Tracker</strong> button. Drag it to your browser&#39;s bookmarks bar. On any job page, clicking it opens the Add form with the page title and link filled in.</p>
+<h3 id="application-detail-page">Application detail page</h3>
+<p>All details and notes, <strong>Edit</strong> and <strong>Delete</strong> buttons, a <strong>status history timeline</strong> (every status the application has been through, newest first), and <strong>Add to calendar</strong> to download its interview and follow-up dates.</p>
+<h3 id="undo">Undo</h3>
+<p>After deleting, moving, editing or importing, a bar appears at the bottom left with an <strong>Undo</strong> button for about eight seconds. It reverses the most recent change only.</p>
+<h3 id="dashboard">Dashboard</h3>
+<ul>
+<li><strong>Total applications</strong>, <strong>response rate</strong>, <strong>days to first reply</strong> and <strong>interviews this week</strong>.</li>
+<li><strong>Status pie chart</strong> and <strong>applications per week</strong> bar chart (last eight weeks).</li>
+<li><strong>Weekly goal ring</strong>: set a target number of applications per week (default 5) and watch it fill.</li>
+<li><strong>Hiring funnel</strong>: how many applications reached the interview and offer stages, with conversion percentages.</li>
+<li><strong>Where replies come from</strong>: reply rate for each source, and which source is currently best.</li>
+</ul>
+<h3 id="compare-offers">Compare offers</h3>
+<p>Choose two or three applications, then fill in for each: base salary, bonus, employer pension, holiday, remote days per week and commute time. The page shows the yearly package, commuting hours per year and an <strong>effective hourly rate</strong> that counts unpaid commuting time. The best figure in each row is marked, with a summary sentence at the top. It is an estimate before tax, not financial advice.</p>
+<h3 id="export-and-import">Export and import</h3>
+<p>The <strong>Export</strong> menu offers three downloads:</p>
+<ul>
+<li><strong>Backup (JSON):</strong> everything, which can be imported again.</li>
+<li><strong>Spreadsheet (CSV):</strong> opens in Excel or Google Sheets. Cells that could be misread as formulas are made safe.</li>
+<li><strong>Calendar (.ics):</strong> interviews and follow-ups as all-day events for Google, Outlook or Apple Calendar.</li>
+</ul>
+<p><strong>Import</strong> reads a JSON backup. The file is checked carefully first, and it replaces your current data (after a warning). You can also drag a JSON file anywhere onto the page.</p>
+<h3 id="look-and-feel">Look and feel</h3>
+<ul>
+<li><strong>Dark and light mode</strong>, remembered between visits.</li>
+<li><strong>Five colour themes</strong> (Indigo, Ocean, Emerald, Sunset, Rose) from the palette button.</li>
+<li>Floating bubbles, a welcome banner, animated numbers and, on computers with a mouse, a glowing cursor with a sparkle trail. All motion is switched off for people who have asked their device for reduced motion, and the cursor effects are skipped on touch screens.</li>
+</ul>
+<h3 id="the-live-demo">The live demo</h3>
+<p><strong>Try the live demo</strong> signs a visitor into a shared demo account with 12 applications from fictional companies. Dates are relative to today so reminders, interviews and charts always look current. A banner explains it and offers <strong>Reset sample data</strong> or <strong>Create my account</strong>.</p>
+<hr>
+<h2 id="4-where-your-data-lives">4. Where your data lives</h2>
+<p>Everything is saved in the browser&#39;s <strong>localStorage</strong>. Nothing is sent to a server.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stored under</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>jat.users</code></td>
+<td>Accounts: name, email, salted password hash</td>
+</tr>
+<tr>
+<td><code>jat.session</code></td>
+<td>Who is signed in and when the session started and was last used</td>
+</tr>
+<tr>
+<td><code>jat.lockouts</code></td>
+<td>Failed-login counters</td>
+</tr>
+<tr>
+<td><code>jat.applications.&lt;user id&gt;</code></td>
+<td>That user&#39;s applications</td>
+</tr>
+<tr>
+<td><code>jat.weeklyGoal.&lt;user id&gt;</code></td>
+<td>That user&#39;s weekly goal</td>
+</tr>
+<tr>
+<td><code>jat.theme</code>, <code>jat.palette</code></td>
+<td>Light/dark mode and colour theme</td>
+</tr>
+</tbody></table></div>
+<p><strong>What this means in practice</strong></p>
+<ul>
+<li>Every change is saved immediately. There is no save button.</li>
+<li>Data survives closing the tab and restarting the computer.</li>
+<li>Each account has its own data, so two people on one browser do not see each other&#39;s applications.</li>
+<li>Data belongs to <strong>one browser profile and one web address</strong>. A different browser, a different device, a different port (such as <code>localhost:5173</code> versus <code>5174</code>) or a private window starts empty.</li>
+<li>Clearing site data deletes everything. <strong>Export a backup regularly.</strong></li>
+</ul>
+<p>You can inspect it yourself: press F12, open <strong>Application</strong>, then <strong>Local Storage</strong>.</p>
+<hr>
+<h2 id="5-security-what-is-protected-and-what-is-not">5. Security: what is protected and what is not</h2>
+<p><strong>What the app does</strong></p>
+<ul>
+<li><strong>Passwords are never stored.</strong> Only a one-way, salted scramble (PBKDF2-SHA256 with 210,000 rounds) is kept, compared in a way that does not leak timing.</li>
+<li><strong>Strong passwords are required:</strong> at least 10 characters with upper case, lower case and a number, with a live strength meter.</li>
+<li><strong>Lockout:</strong> five wrong attempts lock that email for five minutes. Wrong passwords and unknown emails give the same message, so nobody can use the login to discover which emails have accounts.</li>
+<li><strong>Sessions expire:</strong> after 30 minutes without activity, or 12 hours in total. Logging out in one tab logs out the others.</li>
+<li><strong>Protected pages:</strong> signed-out visitors cannot reach the board, dashboard or offers.</li>
+<li><strong>Imports are validated</strong> (size limit 5 MB, strict shape checks), and job links must start with <code>http://</code> or <code>https://</code>.</li>
+<li><strong>CSV files are formula-safe.</strong></li>
+</ul>
+<p><strong>What it cannot do</strong></p>
+<p>Because there is no server, the login is a convenience that keeps accounts apart on one device. It is <strong>not</strong> equivalent to real server-side authentication:</p>
+<ul>
+<li>Anyone with access to the browser profile and developer tools can read or change stored data.</li>
+<li>There is <strong>no password reset</strong> (there is no server to send an email), so a forgotten password means that account&#39;s data cannot be recovered unless you exported a backup.</li>
+<li>It should not hold sensitive or confidential information. For anything real, add a backend with proper authentication.</li>
+</ul>
+<hr>
+<h2 id="6-the-rules-and-calculations">6. The rules and calculations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Response rate</strong></td>
+<td>Share of all applications whose current status is not &quot;Applied&quot;, rounded to a whole percent.</td>
+</tr>
+<tr>
+<td><strong>Interviews this week</strong></td>
+<td>Applications with an interview date from Monday to Sunday of the current week. Weeks start on Monday.</td>
+</tr>
+<tr>
+<td><strong>Applications per week</strong></td>
+<td>The last eight Monday-to-Sunday weeks, with empty weeks shown as zero.</td>
+</tr>
+<tr>
+<td><strong>Quiet application</strong></td>
+<td>Status Applied or Interviewing and no movement for 14 days or more. Finished applications are never &quot;quiet&quot;.</td>
+</tr>
+<tr>
+<td><strong>Follow-up warnings</strong></td>
+<td>&quot;Today&quot; when the reminder date is today, &quot;overdue&quot; when it is in the past.</td>
+</tr>
+<tr>
+<td><strong>Funnel</strong></td>
+<td>Counts every application that <strong>ever</strong> reached Interviewing or Offer, using its history. A rejected application that got an interview still counts as interviewed.</td>
+</tr>
+<tr>
+<td><strong>Days to first reply</strong></td>
+<td>Average whole days from &quot;Applied&quot; to the first move past it, across applications that have moved.</td>
+</tr>
+<tr>
+<td><strong>Reply rate by source</strong></td>
+<td>Applications from a source that moved beyond &quot;Applied&quot;, divided by all from that source. A source needs at least two applications to be named &quot;best&quot;.</td>
+</tr>
+<tr>
+<td><strong>Effective hourly rate</strong></td>
+<td>Package (base + bonus + employer pension) divided by paid working hours plus unpaid commuting hours.</td>
+</tr>
+<tr>
+<td><strong>Offer assumptions</strong></td>
+<td>260 weekdays a year, 8 bank holidays, 7.5-hour days, 25 holiday days if left blank, commute minutes are per office day (return trip).</td>
+</tr>
+<tr>
+<td><strong>Weekly goal</strong></td>
+<td>Default 5 applications a week, adjustable from 1 to 50, remembered per user.</td>
+</tr>
+<tr>
+<td><strong>Drag sensitivity</strong></td>
+<td>A card must move about 6 pixels before it counts as a drag, so ordinary clicks still open the card.</td>
+</tr>
+</tbody></table></div>
+<p>Note: the <strong>response rate</strong> uses current status, while the <strong>funnel</strong> uses full history, so a rejected-after-interview application counts as &quot;responded&quot; in the funnel but not in the response rate.</p>
+<hr>
+<h2 id="7-how-it-is-built">7. How it is built</h2>
+<h3 id="technology">Technology</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>What it does here</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>React 18</strong></td>
+<td>Builds the screens from small reusable pieces called components.</td>
+</tr>
+<tr>
+<td><strong>Vite</strong></td>
+<td>Runs the app while developing and bundles it for release.</td>
+</tr>
+<tr>
+<td><strong>React Router</strong></td>
+<td>Gives each page its own address and protects the private ones.</td>
+</tr>
+<tr>
+<td><strong>Material UI</strong></td>
+<td>Ready-made, accessible interface parts (buttons, dialogs, date pickers), themed in the app&#39;s colours.</td>
+</tr>
+<tr>
+<td><strong>Tailwind CSS</strong></td>
+<td>Base styling and the dark-mode switch. Most visual styling is Material UI.</td>
+</tr>
+<tr>
+<td><strong>dnd-kit</strong></td>
+<td>The drag-and-drop engine, including keyboard support.</td>
+</tr>
+<tr>
+<td><strong>React Hook Form + Zod</strong></td>
+<td>Forms, and the rules that check what is typed in (and what is imported).</td>
+</tr>
+<tr>
+<td><strong>Recharts</strong></td>
+<td>The pie and bar charts.</td>
+</tr>
+<tr>
+<td><strong>Iconify (Lucide icons)</strong></td>
+<td>Icons, bundled into the app so no internet is needed for them.</td>
+</tr>
+<tr>
+<td><strong>Web Crypto API</strong></td>
+<td>The browser&#39;s built-in password hashing.</td>
+</tr>
+<tr>
+<td><strong>Vitest + Testing Library</strong></td>
+<td>Automated tests.</td>
+</tr>
+<tr>
+<td><strong>Fonts</strong></td>
+<td>Plus Jakarta Sans and Sora, bundled with the app.</td>
+</tr>
+</tbody></table></div>
+<h3 id="the-big-picture">The big picture</h3>
+<pre><code>Browser
+ └─ App
+     ├─ Theme provider        light/dark + colour palette
+     ├─ Auth provider         who is signed in; login, logout, sessions
+     └─ Routes
+         ├─ Public pages      landing, login, register
+         └─ Protected shell   (only if signed in)
+             ├─ Applications provider   the user&#39;s applications + undo
+             └─ Layout (header, banners) → Board / Detail / Dashboard / Offers
+</code></pre>
+<p><strong>How a change flows.</strong> You drag a card. The board asks the applications provider to change that card&#39;s status. The provider updates the list, records the change in the card&#39;s history, remembers the previous list for <strong>Undo</strong>, and saves the new list to localStorage. React then redraws the affected parts of the screen.</p>
+<h3 id="folder-map">Folder map</h3>
+<pre><code>src/
+  App.jsx, main.jsx, ProtectedApp.jsx     routes, entry point, signed-in shell
+  components/                             shared pieces: layout, modal, icons, empty states,
+                                          bubbles, confetti, and magic/ (cursor effects)
+  hooks/                                  useLocalStorage, useCountUp, usePageTitle
+  lib/                                    date helpers, file download helper
+  features/
+    applications/    board, cards, form, filters, status logic, history, schema, context
+    auth/            password hashing, sessions, lockout, login and sign-up pages, route guards
+    dashboard/       statistics, funnel and source analytics, charts, weekly goal
+    offers/          offer comparison page and its maths
+    jobhelper/       advert parsing, CV keyword match, bookmarklet
+    calendar/        .ics calendar file builder
+    data/            export menu, JSON import, CSV
+    demo/            sample data and the demo banner
+    landing/         landing page
+    theme/           light/dark mode and colour palettes
+  test/              test set-up
+</code></pre>
+<p>Each folder under <code>features/</code> is one area of the product. Code that is only logic (no screens), such as the statistics, funnel, offer maths and advert parsing, lives in plain files so it can be tested easily.</p>
+<h3 id="ideas-worth-knowing">Ideas worth knowing</h3>
+<ul>
+<li><strong>Context providers</strong> share information (the signed-in user, the applications) with any screen that needs it, without passing it down by hand.</li>
+<li><strong><code>useLocalStorage</code></strong> is a small custom hook that behaves like normal React state but also saves to, and reads from, localStorage. It copes with corrupt data and a full or blocked store.</li>
+<li><strong>Per-user storage.</strong> The applications provider is given a storage key containing the user&#39;s id, and is remounted when the account changes.</li>
+<li><strong>Schemas (Zod)</strong> describe what a valid application looks like once, and are reused for the form, for stored data and for imports.</li>
+<li><strong>Lazy loading.</strong> Everything behind login is downloaded only when needed. The landing page is small and fast, and the charts library only arrives when you open the dashboard.</li>
+<li><strong>Accessibility.</strong> Controls have labels, drag and drop works from the keyboard, focus is visible, and motion respects the reduced-motion setting.</li>
+</ul>
+<hr>
+<h2 id="8-the-data-model">8. The data model</h2>
+<p>One application, as stored:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>Unique identifier, generated</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>company</code></td>
+<td>Company name (up to 100 characters)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td>Job title (up to 100 characters)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>dateApplied</code></td>
+<td>Date in <code>YYYY-MM-DD</code> form</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Applied, Interviewing, Offer or Rejected</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>LinkedIn, Indeed, Company website, Referral, Recruiter or agency, Job board or Other</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>salaryMin</code>, <code>salaryMax</code></td>
+<td>Advertised range in pounds (maximum must not be below minimum)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>jobLink</code></td>
+<td>A web address starting <code>http://</code> or <code>https://</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>followUpDate</code></td>
+<td>Reminder date</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>interviewDate</code></td>
+<td>Interview date</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>Free text, up to 5,000 characters</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>history</code></td>
+<td>List of <code>{ status, at }</code>: every status and when it began</td>
+<td>Added automatically</td>
+</tr>
+<tr>
+<td><code>offer</code></td>
+<td>Offer details used by the comparison: base salary, bonus %, pension %, holiday days, remote days, commute minutes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>createdAt</code>, <code>updatedAt</code></td>
+<td>Timestamps</td>
+<td>Added automatically</td>
+</tr>
+</tbody></table></div>
+<p>A JSON backup is <code>{ version, exportedAt, applications: [...] }</code>. Backups made before history and offers existed still import correctly.</p>
+<hr>
+<h2 id="9-testing-and-quality">9. Testing and quality</h2>
+<p>At the time of writing there are <strong>140 automated tests in 20 files</strong>. They cover:</p>
+<ul>
+<li>the validation rules (every form field, imports, history and offer details);</li>
+<li>status changes and history recording, statistics, funnel and source analytics, quiet-application detection;</li>
+<li>offer maths, advert parsing and CV matching, CSV and calendar file creation;</li>
+<li>the storage hook, including corrupt data and a full store;</li>
+<li>password hashing, lockout, session expiry and route protection;</li>
+<li>the sign-up, login and application forms;</li>
+<li><strong>whole-app journeys</strong> using the real app: landing page, demo, logging out, undoing a delete, the status timeline, comparing offers, the dashboard and pasting a job advert.</li>
+</ul>
+<p>Run them with <code>npm test</code>. When the project is pushed to GitHub, the deployment workflow runs them first and refuses to publish if any fail.</p>
+<p>What the tests do not cover: how things look (spacing, colours, animation), real drag-and-drop with a mouse, the cursor effects, and opening exported files in Excel or a calendar app. Those need checking by eye.</p>
+<hr>
+<h2 id="10-running-and-deploying">10. Running and deploying</h2>
+<pre><code class="language-powershell">cd C:\Users\Yellareswari.B\job-application-tracker
+npm run dev        # start; open the address it prints (usually http://localhost:5173)
+npm test           # run the tests
+npm run build      # make the release build in dist/
+npm run preview    # try the release build locally
+</code></pre>
+<p><strong>Deploying to GitHub Pages</strong> is covered step by step in the main <code>README.md</code>. In short: push to a GitHub repository, set <strong>Settings → Pages → Source</strong> to <strong>GitHub Actions</strong>, and the included workflow tests, builds and publishes the site at <code>https://&lt;username&gt;.github.io/&lt;repository&gt;/</code>.</p>
+<hr>
+<h2 id="11-limitations-and-future-ideas">11. Limitations and future ideas</h2>
+<p><strong>Current limitations</strong></p>
+<ul>
+<li>Data lives in one browser only, so there is no sync between devices.</li>
+<li>No password reset, and the login is not server-grade security (see section 5).</li>
+<li>Undo reverses only the latest change.</li>
+<li>The advert reader and CV match are word-based and best-effort.</li>
+<li>Offer comparisons are estimates before tax and use England and Wales bank holidays.</li>
+<li>No browser extension that autofills application forms, and no email or AI features.</li>
+</ul>
+<p><strong>Ideas for the future</strong></p>
+<ul>
+<li>A backend (for example Supabase or Firebase) for real accounts, password reset and sync across devices.</li>
+<li>Interview-preparation notes and follow-up email templates per application.</li>
+<li>Contacts per application, tags, priorities and an archive.</li>
+<li>A progressive web app so it installs like a mobile app and sends reminders.</li>
+<li>Optional AI help for CV tailoring and cover letters, opt-in because it would send text to a third party.</li>
+</ul>
+<hr>
+<h2 id="12-glossary">12. Glossary</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Front-end only</strong></td>
+<td>Runs entirely in the browser, with no server of its own.</td>
+</tr>
+<tr>
+<td><strong>localStorage</strong></td>
+<td>A small storage area inside the browser that keeps data between visits.</td>
+</tr>
+<tr>
+<td><strong>Component</strong></td>
+<td>A reusable piece of screen, such as a card or a button.</td>
+</tr>
+<tr>
+<td><strong>Provider / context</strong></td>
+<td>A way for one part of the app to share information with many screens.</td>
+</tr>
+<tr>
+<td><strong>Hook</strong></td>
+<td>A reusable piece of React behaviour, such as <code>useLocalStorage</code>.</td>
+</tr>
+<tr>
+<td><strong>Schema (Zod)</strong></td>
+<td>A written description of valid data, used to check forms and imports.</td>
+</tr>
+<tr>
+<td><strong>Hash / salt</strong></td>
+<td>A one-way scramble of a password, with a random extra ingredient so identical passwords look different.</td>
+</tr>
+<tr>
+<td><strong>PBKDF2</strong></td>
+<td>A standard, deliberately slow hashing method that makes password guessing expensive.</td>
+</tr>
+<tr>
+<td><strong>Session</strong></td>
+<td>The period you stay signed in.</td>
+</tr>
+<tr>
+<td><strong>Funnel</strong></td>
+<td>The shrinking path from applying, to interviewing, to receiving an offer.</td>
+</tr>
+<tr>
+<td><strong>Bookmarklet</strong></td>
+<td>A bookmark that runs a tiny action on the page you are viewing.</td>
+</tr>
+<tr>
+<td><strong>.ics file</strong></td>
+<td>The standard calendar file format that calendar apps can import.</td>
+</tr>
+<tr>
+<td><strong>CSV</strong></td>
+<td>A plain table file that spreadsheets can open.</td>
+</tr>
+<tr>
+<td><strong>Lazy loading</strong></td>
+<td>Downloading part of the app only when it is first needed.</td>
+</tr>
+<tr>
+<td><strong>PWA</strong></td>
+<td>A website that can install and behave like a mobile app.</td>
+</tr>
+</tbody></table></div>
+
+</main>
+</body>
+</html>

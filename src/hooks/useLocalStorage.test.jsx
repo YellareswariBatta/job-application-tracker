@@ -38,12 +38,20 @@ describe('useLocalStorage', () => {
 
   it('keeps working in memory and reports an error when storage rejects the write', () => {
     const { result } = renderHook(() => useLocalStorage('k', 0))
-    const spy = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
-      throw new Error('quota')
-    })
-    act(() => result.current[1](9))
-    expect(result.current[0]).toBe(9)
+
+    // Replace the whole storage object with one that refuses writes. (Spying on `setItem` is not
+    // reliable: in a real browser-like Storage, assigning `setItem` just stores a value with that name.)
+    const original = Object.getOwnPropertyDescriptor(window, 'localStorage')
+    const full = { getItem: () => null, removeItem: () => {}, setItem: () => { throw new Error('quota') } }
+    Object.defineProperty(window, 'localStorage', { value: full, configurable: true })
+    try {
+      act(() => result.current[1](9))
+    } finally {
+      if (original) Object.defineProperty(window, 'localStorage', original)
+      else delete window.localStorage
+    }
+
+    expect(result.current[0]).toBe(9) // still works in memory
     expect(result.current[2]).toMatch(/could not be saved/)
-    spy.mockRestore()
   })
 })
